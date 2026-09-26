@@ -1,158 +1,386 @@
-# zen-infra
+# MedPharma
 
- Terraform infrastructure for the **zen-pharma platform**, running on AWS with Kubernetes, RDS PostgreSQL, ECR, IAM, Secrets Manager, and GitHub Actions.
+## Cloud-Native Healthcare Platform | AWS · Terraform · EKS · Kubernetes · GitOps
 
- The repository uses reusable Terraform modules and environment-specific configurations for **dev, QA, and production**.
+[![AWS](https://img.shields.io/badge/AWS-Cloud-orange?logo=amazon-aws)](#)
+[![Terraform](https://img.shields.io/badge/Terraform-Infrastructure%20as%20Code-7B42BC?logo=terraform)](#)
+[![Kubernetes](https://img.shields.io/badge/Kubernetes-EKS-326CE5?logo=kubernetes)](#)
+[![Docker](https://img.shields.io/badge/Docker-Containers-2496ED?logo=docker)](#)
+[![ArgoCD](https://img.shields.io/badge/ArgoCD-GitOps-EF7B4D?logo=argo)](#)
+[![GitHub Actions](https://img.shields.io/badge/GitHub%20Actions-CI%2FCD-2088FF?logo=github)](#)
 
- > **⚠️ Cost warning**
->
->  The dev environment includes EKS and a NAT Gateway, which can incur ongoing AWS charges. Destroy the environment when you're finished using it.
+> **MedPharma is a production-style cloud engineering platform designed to demonstrate how a modern healthcare application can be provisioned, secured, containerized, deployed, and operated on AWS using Infrastructure as Code, Kubernetes, CI/CD, and GitOps.**
 
----
+This repository is the **AWS infrastructure layer** of the MedPharma platform.
 
- ## 🏗️ Architecture
+The goal is not simply to provision AWS resources.
 
-```
-                              Internet
-                                  │
-                                  ▼
-                        ┌──────────────────┐
-                        │ Network Load      │
-                        │ Balancer (NLB)    │
-                        └────────┬─────────┘
-                                 │
-                                 ▼
-                        ┌──────────────────┐
-                        │ NGINX Ingress    │
-                        │ Controller       │
-                        └────────┬─────────┘
-                                 │
-              ┌──────────────────┼──────────────────┐
-              │                  │                  │
-              ▼                  ▼                  ▼
-        ┌───────────┐      ┌────────────┐     ┌──────────────┐
-        │ pharma-ui │      │ API Gateway│     │ Notification │
-        │ React     │      │ :8080      │     │ :3000        │
-        └───────────┘      └─────┬──────┘     └──────────────┘
-                                 │
-                    ┌────────────┼────────────┐
-                    │            │            │
-                    ▼            ▼            ▼
-                 Auth       Catalog       Inventory
-                 :8081       :8082          :8083
-                    │            │            │
-                    └────────────┼────────────┘
-                                 │
-                                 ▼
-                       ┌──────────────────┐
-                       │ RDS PostgreSQL   │
-                       │ Private Subnets  │
-                       └──────────────────┘
-
-                 AWS Secrets Manager
-                         │
-                         ▼
-              External Secrets Operator
-                         │
-                         ▼
-                     Kubernetes
-```
-
- ### Infrastructure overview
-
- | Component | Purpose |
-| --- | --- |
-| VPC | Isolated AWS network |
-| Public subnets | NAT Gateway and load balancers |
-| Private EKS subnets | Kubernetes worker nodes |
-| Private RDS subnets | PostgreSQL database |
-| EKS | Managed Kubernetes cluster |
-| RDS PostgreSQL | Application database |
-| ECR | Container image registry |
-| IAM | AWS permissions and workload identity |
-| Secrets Manager | Application secrets |
-| S3 | Terraform remote state |
-| GitHub Actions | Infrastructure CI/CD |
+The goal is to demonstrate the engineering practices required to build a **repeatable, secure, observable, and maintainable cloud platform**.
 
 ---
 
- # 📋 Table of Contents
+# ⚡ Executive Overview
 
- - Architecture
-- Prerequisites
-- Repository Structure
-- AWS Resources
-- Getting Started
-  - 1\. Configure AWS
-  - 2\. Create the Terraform State Bucket
-  - 3\. Fork and Clone
-  - 4\. Configure Your Account
-  - 5\. Configure GitHub Secrets
-  - 6\. Configure GitHub Environment
-  - 7\. Deploy
-  - 8\. Verify
-- Environment Structure
-- Networking
-- Security
-- CI/CD
-- Day-2 Operations
-- Destroying Infrastructure
-- Troubleshooting
-- Cost Estimate
+### What was built?
 
----
+A multi-tier AWS platform supporting a containerized healthcare/pharmaceutical application.
 
- # 🔧 Prerequisites
+### How is it provisioned?
 
- Install the following tools:
+**Terraform** defines the AWS infrastructure as code.
 
- | Tool | Version |
-| --- | --- |
-| Terraform | 1.10+ |
-| AWS CLI | 2.x |
-| Git | 2.x |
-| kubectl | Latest recommended |
+### Where do workloads run?
 
-Verify your installation:
+**Amazon EKS** provides the Kubernetes runtime.
 
-```
-terraform version
-aws --version
-git --version
-kubectl version --client
-```
+### Where does application data live?
 
- You will also need:
+**Amazon RDS PostgreSQL** provides managed persistent storage.
 
- - An AWS account
-- AWS permissions sufficient to create the infrastructure
-- A GitHub account
-- A fork of this repository
+### How are containers delivered?
+
+**GitHub Actions → Amazon ECR → GitOps → ArgoCD → EKS**
+
+### How are secrets handled?
+
+**AWS Secrets Manager** rather than credentials committed to source control.
+
+### How is infrastructure changed?
+
+**Pull Request → Terraform Plan → Review → Apply**
+
+### What does this demonstrate?
+
+Cloud architecture, networking, Kubernetes, Infrastructure as Code, CI/CD, GitOps, IAM, secrets management, containerization, and operational thinking.
 
 ---
 
- # 📁 Repository Structure
+# 🏗️ Architecture
 
+```text
+                                  USERS
+                                    │
+                                    ▼
+                           ┌─────────────────┐
+                           │  AWS Load       │
+                           │  Balancer       │
+                           └────────┬────────┘
+                                    │
+                                    ▼
+                           ┌─────────────────┐
+                           │ NGINX Ingress   │
+                           │   Controller    │
+                           └────────┬────────┘
+                                    │
+                  ┌─────────────────┼──────────────────┐
+                  │                 │                  │
+                  ▼                 ▼                  ▼
+             ┌─────────┐      ┌───────────┐     ┌─────────────┐
+             │ React   │      │    API    │     │Notification │
+             │Frontend │      │  Gateway  │     │  Service    │
+             └─────────┘      │   :8080   │     │    :8086    │
+                              └─────┬─────┘     └─────────────┘
+                                    │
+             ┌──────────────────────┼────────────────────────┐
+             │                      │                        │
+             ▼                      ▼                        ▼
+       ┌──────────┐          ┌─────────────┐          ┌────────────┐
+       │   Auth   │          │    Drug     │          │ Inventory  │
+       │  :8081   │          │   Catalog   │          │   :8083    │
+       └────┬─────┘          │    :8082    │          └─────┬──────┘
+            │                └──────┬──────┘                │
+            │                       │                       │
+            └───────────────────────┼───────────────────────┘
+                                    │
+                    ┌───────────────┴───────────────┐
+                    │                               │
+                    ▼                               ▼
+             ┌─────────────┐                 ┌─────────────┐
+             │Manufacturing│                 │  Supplier   │
+             │    :8084    │                 │    :8085    │
+             └──────┬──────┘                 └──────┬──────┘
+                    │                               │
+                    └───────────────┬───────────────┘
+                                    │
+                                    ▼
+                          ┌─────────────────────┐
+                          │    Amazon RDS       │
+                          │    PostgreSQL       │
+                          │    Private Tier     │
+                          └─────────────────────┘
+
+
+╔══════════════════════════════════════════════════════════════════════╗
+║                         AWS PLATFORM                                ║
+║                                                                      ║
+║   PUBLIC SUBNETS              PRIVATE SUBNETS                       ║
+║                                                                      ║
+║   ┌───────────────┐            ┌──────────────────────────────┐     ║
+║   │ Load Balancer │            │         Amazon EKS            │     ║
+║   │ NAT Gateway   │            │      Worker Nodes             │     ║
+║   └───────────────┘            └──────────────┬───────────────┘     ║
+║                                               │                     ║
+║                                               ▼                     ║
+║                                  ┌──────────────────────────────┐   ║
+║                                  │         Amazon RDS            │   ║
+║                                  │          PostgreSQL           │   ║
+║                                  └──────────────────────────────┘   ║
+║                                                                      ║
+╚══════════════════════════════════════════════════════════════════════╝
 ```
-zen-infra/
+
+---
+
+# 🔄 End-to-End Delivery Architecture
+
+MedPharma separates **infrastructure delivery** from **application delivery** while connecting them through a common platform.
+
+```text
+                         SOURCE CONTROL
+                              │
+                ┌─────────────┴─────────────┐
+                │                           │
+                ▼                           ▼
+       APPLICATION REPOS             INFRASTRUCTURE REPO
+                │                           │
+                ▼                           ▼
+         GitHub Actions               GitHub Actions
+                │                           │
+                ▼                           ▼
+         Security Checks                Terraform
+                │                           │
+                ▼                           ▼
+            Docker                      AWS APIs
+                │                           │
+                ▼                           ▼
+              ECR                    VPC / EKS / RDS
+                │
+                ▼
+             GitOps
+                │
+                ▼
+             ArgoCD
+                │
+                ▼
+              EKS
+                │
+                ▼
+         Running Workloads
+```
+
+This creates a clean separation of responsibilities:
+
+| Layer              | Responsibility             |
+| ------------------ | -------------------------- |
+| **Terraform**      | AWS infrastructure         |
+| **GitHub Actions** | Automation and validation  |
+| **ECR**            | Container artifact storage |
+| **GitOps**         | Desired Kubernetes state   |
+| **ArgoCD**         | Kubernetes reconciliation  |
+| **EKS**            | Application runtime        |
+| **RDS**            | Persistent relational data |
+
+---
+
+# 🧠 Engineering Philosophy
+
+The platform follows six core principles.
+
+### 01 — Everything Important Is Code
+
+Infrastructure should be reproducible rather than dependent on manual console configuration.
+
+### 02 — Least Privilege
+
+Applications, CI/CD pipelines, and infrastructure automation should receive only the AWS permissions they require.
+
+### 03 — Private by Default
+
+Application compute and databases are isolated inside private network tiers wherever possible.
+
+### 04 — Immutable Artifacts
+
+Container images are identified by immutable versions rather than relying on mutable deployment state.
+
+### 05 — Git as the Source of Truth
+
+Infrastructure and Kubernetes configuration are version controlled and reviewable.
+
+### 06 — Automate the Feedback Loop
+
+Changes should be validated before reaching shared infrastructure.
+
+---
+
+# ☁️ AWS Infrastructure
+
+The Terraform configuration provisions the core AWS platform required by MedPharma.
+
+## Networking
+
+* Amazon VPC
+* Public subnets
+* Private application subnets
+* Private database subnets
+* Internet Gateway
+* NAT Gateway
+* Route tables
+* Security groups
+
+## Compute
+
+* Amazon EKS
+* EKS managed node groups
+* Kubernetes networking
+* IAM integration
+
+## Data
+
+* Amazon RDS PostgreSQL
+* DB subnet groups
+* Database security groups
+* Private database connectivity
+
+## Container Platform
+
+* Amazon ECR
+* Container image repositories
+* Image lifecycle management
+
+## Security
+
+* AWS IAM
+* IAM roles
+* OIDC integration
+* AWS Secrets Manager
+* Kubernetes workload identity
+
+---
+
+# 🌐 Network Design
+
+The development VPC uses:
+
+```text
+VPC
+10.0.0.0/16
 │
-├── .github/
-│   └── workflows/
-│       └── terraform.yml
+├── Public Subnets
+│   ├── 10.0.1.0/24
+│   └── 10.0.2.0/24
+│
+├── Private EKS Subnets
+│   ├── 10.0.3.0/24
+│   └── 10.0.4.0/24
+│
+└── Private RDS Subnets
+    ├── 10.0.5.0/24
+    └── 10.0.6.0/24
+```
+
+Traffic is intentionally separated between:
+
+```text
+Internet-facing infrastructure
+          │
+          ▼
+     Public Tier
+          │
+          ▼
+    Private EKS Tier
+          │
+          ▼
+    Private Data Tier
+```
+
+This provides clear network boundaries between ingress, compute, and persistent data.
+
+---
+
+# 🔐 Security Architecture
+
+Security is treated as an architectural concern rather than a final-stage checklist.
+
+## CI/CD Identity
+
+Where supported, GitHub Actions can authenticate to AWS through OIDC:
+
+```text
+GitHub Actions
+      │
+      ▼
+GitHub OIDC Token
+      │
+      ▼
+AWS IAM Role
+      │
+      ▼
+Temporary Credentials
+      │
+      ▼
+AWS APIs
+```
+
+This eliminates the need for long-lived static AWS credentials for supported workflows.
+
+---
+
+## Application Identity
+
+Kubernetes workloads can obtain AWS permissions through workload identity:
+
+```text
+Pod
+ │
+ ▼
+Kubernetes Service Account
+ │
+ ▼
+OIDC
+ │
+ ▼
+AWS IAM Role
+ │
+ ▼
+AWS Service
+```
+
+This provides workload-level authorization without embedding AWS access keys into application containers.
+
+---
+
+## Secrets
+
+Sensitive application configuration follows:
+
+```text
+AWS Secrets Manager
+        │
+        ▼
+External Secrets
+        │
+        ▼
+Kubernetes Secret
+        │
+        ▼
+Application
+```
+
+Credentials should not be committed directly to Git.
+
+---
+
+# 🏗️ Terraform Design
+
+The infrastructure is organized around reusable Terraform modules.
+
+```text
+med-infra/
 │
 ├── envs/
 │   ├── dev/
-│   │   ├── backend.tf
-│   │   ├── providers.tf
-│   │   ├── main.tf
-│   │   ├── variables.tf
-│   │   └── outputs.tf
-│   │
 │   ├── qa/
-│   │   └── ...
-│   │
 │   └── prod/
-│       └── ...
 │
 ├── modules/
 │   ├── vpc/
@@ -162,1066 +390,530 @@ zen-infra/
 │   ├── iam/
 │   └── secrets-manager/
 │
-└── README.md
+└── .github/
+    └── workflows/
 ```
 
- ### Module responsibilities
+### Why Modules?
 
- | Module | Responsibility |
-| --- | --- |
-| `vpc` | VPC, subnets, routes, NAT Gateway, Internet Gateway |
-| `eks` | EKS cluster, node group, OIDC provider |
-| `rds` | PostgreSQL, subnet group, security groups |
-| `ecr` | Container repositories and lifecycle policies |
-| `iam` | IAM roles and workload identity |
-| `secrets-manager` | Application secrets |
+Instead of duplicating infrastructure configuration:
 
-Each environment calls the same modules with environment-specific configuration.
+```text
+              Shared Terraform Modules
+                       │
+          ┌────────────┼────────────┐
+          ▼            ▼            ▼
+         DEV           QA          PROD
+```
+
+Each environment consumes the same architectural building blocks while providing environment-specific configuration.
+
+This makes infrastructure:
+
+* easier to review
+* easier to maintain
+* easier to reproduce
+* less prone to configuration drift
+* easier to scale across environments
 
 ---
 
- # ☁️ AWS Resources
-
- The dev environment creates approximately:
-
- ### Networking
-
- - VPC: `10.0.0.0/16`
-- 2 public subnets
-- 2 private EKS subnets
-- 2 private RDS subnets
-- Internet Gateway
-- NAT Gateway
-- Route tables
-
- ### EKS
-
- - Kubernetes `1.33`
-- EKS cluster
-- Managed node group
-- `t3.small` worker nodes
-- Desired nodes: 3
-- Minimum nodes: 2
-- Maximum nodes: 4
-- OIDC provider for IRSA
-
- ### RDS
-
- - PostgreSQL `15.7`
-- Instance: `db.t3.micro`
-- Storage: 20 GB
-- Encrypted storage
-- Private access only
-- Port `5432`
-- Accessible from the EKS security group
-
- ### ECR
-
- Container repositories for:
-
-```
-api-gateway
-auth-service
-drug-catalog-service
-inventory-service
-supplier-service
-manufacturing-service
-notification-service
-pharma-ui
-```
-
- Repositories use:
-
- - Image scanning on push
-- Mutable image tags
-- Lifecycle policies
-- Automatic cleanup of older images
-
----
-
- # 🚀 Getting Started
-
- ## 1\. Configure AWS
-
- Configure the AWS CLI:
-
-```
-aws configure
-```
-
- Use:
-
-```
-AWS Access Key ID:     <your-access-key>
-AWS Secret Access Key: <your-secret-key>
-Default region:        us-east-1
-Default output:        json
-```
-
- Verify your credentials:
-
-```
-aws sts get-caller-identity
-```
-
- You should receive your AWS account and IAM identity information.
-
- > **Security:** Never commit AWS credentials to Git.
-
----
-
- ## 2\. Create the Terraform State Bucket
-
- Terraform state is stored remotely in S3.
-
- Choose a globally unique bucket name:
-
-```
-export TF_STATE_BUCKET="zen-pharma-terraform-state-YOUR-GITHUB-USERNAME"
-```
-
- Create the bucket:
-
-```
-aws s3api create-bucket \
-  --bucket "$TF_STATE_BUCKET" \
-  --region us-east-1
-```
-
- Enable versioning:
-
-```
-aws s3api put-bucket-versioning \
-  --bucket "$TF_STATE_BUCKET" \
-  --versioning-configuration Status=Enabled
-```
-
- Enable encryption:
-
-```
-aws s3api put-bucket-encryption \
-  --bucket "$TF_STATE_BUCKET" \
-  --server-side-encryption-configuration \
-  '{"Rules":[{"ApplyServerSideEncryptionByDefault":{"SSEAlgorithm":"AES256"}}]}'
-```
-
- Block public access:
-
-```
-aws s3api put-public-access-block \
-  --bucket "$TF_STATE_BUCKET" \
-  --public-access-block-configuration \
-  BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true
-```
-
- Verify:
-
-```
-aws s3 ls "s3://$TF_STATE_BUCKET"
-```
-
- The bucket should exist and initially be empty.
-
----
-
- ## 3\. Fork and Clone
-
- Fork the repository to your GitHub account.
-
- Then:
-
-```
-git clone https://github.com/YOUR-GITHUB-USERNAME/zen-infra.git
-cd zen-infra
-```
-
----
-
- ## 4\. Configure Your Account
-
- Update the S3 bucket in:
-
-```
-envs/dev/backend.tf
-envs/qa/backend.tf
-envs/prod/backend.tf
-```
-
- Example:
-
-```
-terraform {
-  backend "s3" {
-    bucket       = "zen-pharma-terraform-state-YOUR-GITHUB-USERNAME"
-    key          = "envs/dev/terraform.tfstate"
-    region       = "us-east-1"
-    encrypt      = true
-    use_lockfile = true
-  }
-}
-```
-
- Each environment should use its own state key:
-
-```
-envs/dev/terraform.tfstate
-envs/qa/terraform.tfstate
-envs/prod/terraform.tfstate
-```
-
- ### Configure GitHub organization/user
-
- Update `github_org` in:
-
-```
-envs/dev/variables.tf
-envs/qa/variables.tf
-envs/prod/variables.tf
-```
-
- Example:
-
-```
-variable "github_org" {
-  description = "GitHub username or organization"
-  type        = string
-  default     = "YOUR-GITHUB-USERNAME"
-}
-```
-
----
-
- # 🔐 5. Configure GitHub Secrets
-
- Go to:
-
- **GitHub → Repository → Settings → Secrets and variables → Actions**
-
- Create these repository secrets:
-
- | Secret | Purpose |
-| --- | --- |
-| `AWS_ACCESS_KEY_ID` | AWS authentication |
-| `AWS_SECRET_ACCESS_KEY` | AWS authentication |
-| `DEV_DB_PASSWORD` | RDS master password |
-| `DEV_JWT_SECRET` | JWT signing secret |
-
-Generate a strong JWT secret:
-
-```
-openssl rand -hex 32
-```
-
- > **Important:** Secrets should never be committed to Git or stored in Terraform files.
-
----
-
- # 🛡️ 6. Configure GitHub Environment
-
- Create a GitHub environment named:
-
-```
-dev
-```
-
- Navigate to:
-
- **Settings → Environments → New environment**
-
- Add a required reviewer under:
-
- **Deployment protection rules → Required reviewers**
-
- This creates a manual approval gate before Terraform can apply infrastructure changes.
-
----
-
- # 🚢 7. Deploy
-
- The recommended workflow is:
-
-```
-Feature branch
-      │
-      ▼
+# 🔁 Infrastructure Change Management
+
+Infrastructure changes follow a controlled lifecycle.
+
+```text
+Developer
+    │
+    ▼
+Feature Branch
+    │
+    ▼
 Pull Request
-      │
-      ▼
-Terraform Plan
-      │
-      ▼
-Review
-      │
-      ▼
-Merge to main
-      │
-      ▼
-Fresh Terraform Plan
-      │
-      ▼
-Manual Approval
-      │
-      ▼
-Terraform Apply
+    │
+    ├── Terraform Format
+    ├── Terraform Validate
+    ├── Security Checks
+    └── Terraform Plan
+    │
+    ▼
+Code Review
+    │
+    ▼
+Merge
+    │
+    ▼
+Apply
+    │
+    ▼
+AWS
 ```
 
- Create a feature branch:
+The important idea is:
 
+> **Infrastructure changes are reviewed before they become infrastructure.**
+
+Terraform plans provide visibility into the expected impact of a change before applying it.
+
+---
+
+# 🗃️ Remote Terraform State
+
+Terraform state is stored remotely in Amazon S3.
+
+```text
+Terraform
+    │
+    ▼
+Amazon S3
+    │
+    ├── Encryption
+    ├── Versioning
+    └── Controlled Access
 ```
-git checkout -b feature/initial-setup
+
+Remote state allows infrastructure automation to operate from a shared source of truth instead of relying on a developer's local machine.
+
+---
+
+# ☸️ Amazon EKS
+
+EKS provides the Kubernetes execution environment for MedPharma.
+
+```text
+Amazon EKS
+│
+├── API Gateway
+├── Auth Service
+├── Drug Catalog
+├── Inventory
+├── Manufacturing
+├── Supplier
+├── Notification
+└── Frontend
 ```
 
- Make a small configuration change, then:
+The infrastructure repository provisions the underlying AWS platform.
 
+The GitOps repository manages application deployment configuration.
+
+That separation keeps responsibilities clear:
+
+> **Terraform builds the platform.
+> GitOps operates the workloads.**
+
+---
+
+# 📦 Container Supply Chain
+
+Application containers move through the platform as follows:
+
+```text
+Source Code
+    │
+    ▼
+GitHub Actions
+    │
+    ├── Test
+    ├── Security Scan
+    └── Build
+    │
+    ▼
+Docker Image
+    │
+    ▼
+Amazon ECR
+    │
+    ▼
+GitOps
+    │
+    ▼
+ArgoCD
+    │
+    ▼
+Amazon EKS
 ```
-git add .
-git commit -m "feat: initial infrastructure setup"
-git push origin feature/initial-setup
+
+Images are versioned using immutable identifiers such as:
+
+```text
+auth-service:sha-a1b2c3d
 ```
 
- Open a Pull Request against `main`.
+rather than depending on:
 
- The GitHub Actions pipeline will run:
-
+```text
+auth-service:latest
 ```
-terraform fmt
-terraform init
-terraform validate
+
+This makes deployed artifacts traceable to source-control revisions.
+
+---
+
+# 🔐 Defense-in-Depth
+
+The platform applies security controls across multiple layers.
+
+```text
+                  INTERNET
+                     │
+                     ▼
+              Load Balancer
+                     │
+                     ▼
+                NGINX Ingress
+                     │
+                     ▼
+             ┌───────────────┐
+             │ Kubernetes    │
+             │   Security    │
+             └───────┬───────┘
+                     │
+                     ▼
+               Private EKS
+                     │
+                     ▼
+             Security Groups
+                     │
+                     ▼
+              Private RDS
+                     │
+                     ▼
+                PostgreSQL
+```
+
+Identity and secrets are handled separately through:
+
+```text
+IAM
+OIDC
+Secrets Manager
+Workload Identity
+```
+
+---
+
+# 📊 Environment Strategy
+
+The architecture is designed around isolated environments.
+
+```text
+                  Terraform Modules
+                         │
+          ┌──────────────┼──────────────┐
+          │              │              │
+          ▼              ▼              ▼
+        DEV             QA            PROD
+          │              │              │
+          ▼              ▼              ▼
+         AWS            AWS            AWS
+```
+
+Environment-specific configuration can control:
+
+* compute capacity
+* database sizing
+* networking
+* application configuration
+* scaling parameters
+* deployment settings
+
+This allows the platform architecture to remain consistent while infrastructure characteristics change by environment.
+
+---
+
+# 💵 Cost Engineering
+
+Cloud architecture has to account for cost as well as functionality.
+
+The major development cost drivers include:
+
+* EKS
+* EC2 worker nodes
+* NAT Gateway
+* RDS
+* Load Balancers
+* ECR storage
+* Secrets Manager
+
+Temporary environments can be destroyed when no longer required:
+
+```bash
+terraform destroy
+```
+
+The objective is to avoid paying for infrastructure that is not actively providing value.
+
+---
+
+# 🛠️ Day-2 Operations
+
+The infrastructure is designed to support ongoing operations, not just initial provisioning.
+
+### Detect Drift
+
+```bash
 terraform plan
 ```
 
- Review the plan before merging.
+### Inspect State
 
- After merging, the pipeline generates another plan and waits for deployment approval.
-
- Go to:
-
- **GitHub → Actions → Terraform Infrastructure → Review deployments**
-
- Approve the deployment.
-
- ### Expected deployment time
-
- A full dev deployment typically takes approximately:
-
- - EKS cluster: \~10 minutes
-- EKS node group: \~5 minutes
-- RDS: \~5 minutes
-
- Allow approximately **15–25 minutes** for the complete deployment.
-
----
-
- # ✅ 8. Verify the Infrastructure
-
- After Terraform finishes, check the outputs:
-
-```
-cd envs/dev
-terraform output
-```
-
- You should see values such as:
-
-```
-eks_cluster_name
-rds_endpoint
-```
-
- ### Check EKS
-
-```
-aws eks describe-cluster \
-  --name pharma-dev-cluster \
-  --query 'cluster.status'
-```
-
- Expected:
-
-```
-"ACTIVE"
-```
-
- Configure kubectl:
-
-```
-aws eks update-kubeconfig \
-  --region us-east-1 \
-  --name pharma-dev-cluster
-```
-
- Check nodes:
-
-```
-kubectl get nodes
-```
-
- Expected:
-
-```
-NAME                    STATUS   ROLES    AGE
-...                     Ready    <none>   ...
-...                     Ready    <none>   ...
-...                     Ready    <none>   ...
-```
-
- Check namespaces:
-
-```
-kubectl get namespaces
-```
-
----
-
- # 🌐 Networking
-
- The dev environment uses:
-
- | Subnet | CIDR | AZ | Purpose |
-| --- | --- | --- | --- |
-| Public 1 | `10.0.1.0/24` | `us-east-1a` | NAT / Load Balancer |
-| Public 2 | `10.0.2.0/24` | `us-east-1b` | NAT / Load Balancer |
-| Private EKS 1 | `10.0.3.0/24` | `us-east-1a` | EKS nodes |
-| Private EKS 2 | `10.0.4.0/24` | `us-east-1b` | EKS nodes |
-| Private RDS 1 | `10.0.5.0/24` | `us-east-1a` | PostgreSQL |
-| Private RDS 2 | `10.0.6.0/24` | `us-east-1b` | PostgreSQL |
-
-Worker nodes and RDS remain in private subnets.
-
- Outbound traffic from private resources uses the NAT Gateway.
-
----
-
- # 🔒 Security Design
-
- The infrastructure is designed around several security principles.
-
- ### Private worker nodes
-
- EKS worker nodes are deployed in private subnets and don't receive public IP addresses.
-
- ### Private database
-
- RDS is deployed in private subnets and isn't publicly accessible.
-
- Port `5432` is restricted to the appropriate EKS security group.
-
- ### Secrets Manager
-
- Application secrets are stored in AWS Secrets Manager:
-
-```
-/pharma/dev/db-credentials
-/pharma/dev/jwt-secret
-```
-
- Secrets are not stored in Git or Kubernetes manifests.
-
- ### External Secrets Operator
-
- ESO retrieves secrets from Secrets Manager and makes them available to workloads inside Kubernetes.
-
- ### IRSA
-
- Kubernetes workloads can use IAM Roles for Service Accounts instead of static AWS credentials.
-
- ### GitHub Actions
-
- The repository uses GitHub Actions to automate infrastructure deployment.
-
- > **Production improvement:** Replace long-lived AWS access keys in GitHub Secrets with GitHub Actions OIDC wherever possible.
-
----
-
- # 🔄 CI/CD
-
- The infrastructure pipeline is defined in:
-
-```
-.github/workflows/terraform.yml
-```
-
- ### Pull Request
-
- Every infrastructure PR should run:
-
-```
-terraform fmt -check
-terraform init
-terraform validate
-terraform plan
-```
-
- The plan should be reviewed before merging.
-
- ### Main branch
-
- After merging:
-
-```
-Terraform Plan
-      ↓
-Manual Approval
-      ↓
-Terraform Apply
-```
-
- This provides a controlled deployment process while keeping infrastructure changes version-controlled.
-
----
-
- # 🛠️ Day-2 Operations
-
- ## Make an infrastructure change
-
- Create a branch:
-
-```
-git checkout -b feature/update-infrastructure
-```
-
- Make your Terraform changes.
-
- Test locally:
-
-```
-cd envs/dev
-
-terraform init
-
-terraform plan \
-  -var="db_password=dummy" \
-  -var="jwt_secret=dummy"
-```
-
- Commit and push:
-
-```
-git add .
-git commit -m "feat: update infrastructure"
-git push origin feature/update-infrastructure
-```
-
- Open a Pull Request and review the generated Terraform plan.
-
----
-
- ## Check Terraform state
-
-```
-cd envs/dev
+```bash
 terraform state list
 ```
 
- Inspect a resource:
+### Inspect a Resource
 
+```bash
+terraform state show <resource>
 ```
-terraform state show module.eks.aws_eks_cluster.main
+
+### Validate Configuration
+
+```bash
+terraform fmt -check
+terraform validate
 ```
 
----
+### Review Infrastructure Changes
 
- ## Check for drift
-
- To compare Terraform state with the actual infrastructure:
-
-```
+```bash
 terraform plan
 ```
 
- For a refresh-only check:
-
-```
-terraform plan -refresh-only
-```
-
- This is particularly useful after manually changing or deleting AWS resources.
+This provides a repeatable workflow for managing infrastructure throughout its lifecycle.
 
 ---
 
- ## Scale the EKS node group
+# 📁 Repository Structure
 
- Update the module configuration:
-
-```
-module "eks" {
-  # ...
-
-  desired_capacity = 5
-  min_size         = 3
-  max_size         = 8
-}
-```
-
- Then use the normal PR workflow.
-
----
-
- # 💥 Destroying Infrastructure
-
- > **⚠️ WARNING**
->
->  Destroying the environment permanently removes infrastructure. This includes EKS, RDS, networking resources, and other AWS resources. Database data may be permanently lost.
-
- ## Recommended: GitHub Actions
-
- Use the infrastructure workflow:
-
- **GitHub → Actions → Terraform Infrastructure → Run workflow**
-
- Select:
-
-```
-Terraform action: destroy
-```
-
- Enter the required confirmation:
-
-```
-destroy
-```
-
- The destroy job will require approval before execution.
-
- Allow approximately **15–25 minutes** for a complete teardown.
-
----
-
- ## Local destroy
-
- From the dev environment:
-
-```
-cd envs/dev
-
-terraform init
-```
-
- Then:
-
-```
-terraform destroy \
-  -var="db_password=dummy" \
-  -var="jwt_secret=dummy" \
-  -var="github_org=YOUR-GITHUB-USERNAME"
-```
-
- Terraform will show the resources it intends to delete.
-
- Type:
-
-```
-yes
-```
-
- to confirm.
-
- ### Important
-
- Don't manually delete AWS resources while Terraform is actively destroying them.
-
- If resources have already been manually deleted, refresh Terraform's state first:
-
-```
-terraform plan -refresh-only
-```
-
- Then:
-
-```
-terraform apply -refresh-only
-```
-
- Finally:
-
-```
-terraform plan
+```text
+med-infra/
+│
+├── envs/
+│   ├── dev/
+│   ├── qa/
+│   └── prod/
+│
+├── modules/
+│   ├── vpc/
+│   ├── eks/
+│   ├── rds/
+│   ├── ecr/
+│   ├── iam/
+│   └── secrets-manager/
+│
+├── .github/
+│   └── workflows/
+│
+├── README.md
+├── versions.tf
+├── providers.tf
+└── variables.tf
 ```
 
 ---
 
- # 🧹 Removing the Terraform State Bucket
+# 🔗 MedPharma Platform
 
- `terraform destroy` does **not** delete the S3 backend bucket because Terraform needs the backend to manage its own state.
+This repository is one component of the larger MedPharma engineering platform.
 
- After all environments have been destroyed, you can remove the bucket manually.
-
- Empty it:
-
+```text
+                         MEDPHARMA
+                            │
+          ┌─────────────────┼─────────────────┐
+          │                 │                 │
+          ▼                 ▼                 ▼
+      med-infra       backend services      frontend
+          │                 │                 │
+          ▼                 ▼                 │
+       Terraform           Docker             │
+          │                 │                 │
+          ▼                 ▼                 │
+        AWS/EKS             ECR ◄─────────────┘
+          │                 │
+          │                 ▼
+          │               GitOps
+          │                 │
+          │                 ▼
+          └─────────────► ArgoCD
+                            │
+                            ▼
+                           EKS
 ```
-aws s3 rm \
-  s3://zen-pharma-terraform-state-YOUR-GITHUB-USERNAME \
-  --recursive
-```
 
- Then delete it:
+### Repository Responsibilities
 
-```
-aws s3api delete-bucket \
-  --bucket zen-pharma-terraform-state-YOUR-GITHUB-USERNAME \
-  --region us-east-1
-```
-
- > Make sure you no longer need any Terraform state versions before deleting the bucket.
+| Repository              | Responsibility                                        |
+| ----------------------- | ----------------------------------------------------- |
+| **med-infra**           | AWS infrastructure and Terraform                      |
+| **med-pharma-backend**  | Java/Spring Boot microservices                        |
+| **med-pharma-frontend** | React frontend                                        |
+| **gitops**              | Kubernetes, Helm, and ArgoCD deployment configuration |
 
 ---
 
- # 🐛 Troubleshooting
+# 🧪 Technology Stack
 
- ## `RepositoryAlreadyExistsException`
+### Cloud
 
- ECR repositories may still contain images.
+**AWS · VPC · EKS · RDS · ECR · IAM · S3 · Secrets Manager**
 
- Delete the repository:
+### Infrastructure
 
-```
-aws ecr delete-repository \
-  --repository-name api-gateway \
-  --force \
-  --region us-east-1
-```
+**Terraform · Terraform Modules · Remote State**
 
- Repeat for the affected repositories.
+### Containers
 
----
+**Docker · Amazon ECR**
 
- ## Terraform says a resource already exists
+### Kubernetes
 
- Refresh state:
+**Kubernetes · EKS · Helm · NGINX Ingress**
 
-```
-terraform plan -refresh-only
-```
+### CI/CD
 
- Then:
+**GitHub Actions**
 
-```
-terraform apply -refresh-only
-```
+### GitOps
 
- If the resource genuinely exists in AWS but isn't in Terraform state, investigate before importing or deleting it.
+**ArgoCD · Git-based Desired State**
+
+### Application
+
+**Java 17 · Spring Boot · PostgreSQL · React · Node.js**
 
 ---
 
- ## Terraform destroy says a subnet has dependencies
+# 🎯 What This Project Demonstrates to an Employer
 
- This usually means something is still using the subnet.
+A candidate who can build a project like this needs to understand considerably more than individual AWS services.
 
- Check network interfaces:
+This platform demonstrates the ability to reason about:
 
-```
-aws ec2 describe-network-interfaces \
-  --filters "Name=subnet-id,Values=<subnet-id>" \
-  --query 'NetworkInterfaces[*].[NetworkInterfaceId,Status,Description,InterfaceType]' \
-  --output table
-```
+* cloud architecture
+* network segmentation
+* Infrastructure as Code
+* Kubernetes architecture
+* containerized workloads
+* IAM and identity
+* secrets management
+* CI/CD
+* GitOps
+* environment isolation
+* infrastructure lifecycle management
+* deployment traceability
+* operational tradeoffs
+* cloud cost considerations
 
- Common causes include:
-
- - NAT Gateway
-- Load Balancer
-- VPC Endpoint
-- Lambda VPC ENI
-- EKS resources
-- Other AWS-managed network interfaces
-
- Delete the owning resource rather than manually deleting the ENI.
-
----
-
- ## Internet Gateway cannot be detached
-
- You may see:
-
-```
-DependencyViolation:
-Network VPC has some mapped public address(es).
-```
-
- Check public addresses:
-
-```
-aws ec2 describe-addresses \
-  --filters "Name=domain,Values=vpc" \
-  --query 'Addresses[*].[AllocationId,PublicIp,AssociationId,InstanceId,NetworkInterfaceId]' \
-  --output table
-```
-
- Also check NAT Gateways:
-
-```
-aws ec2 describe-nat-gateways \
-  --filter "Name=vpc-id,Values=<vpc-id>" \
-  --query 'NatGateways[*].[NatGatewayId,State,SubnetId]' \
-  --output table
-```
-
- Remove the resource owning the public address and then retry:
-
-```
-terraform destroy
-```
+More importantly, the architecture demonstrates how these technologies fit together into **one operating system for a cloud platform**, rather than existing as disconnected technologies on a resume.
 
 ---
 
- ## Terraform state lock error
+# 🏆 Engineering Principles
 
- If you see:
-
-```
-Error acquiring the state lock
-```
-
- First make sure another Terraform operation isn't running.
-
- If you're certain there isn't an active operation:
-
-```
-terraform force-unlock <LOCK_ID>
-```
-
- > Never force-unlock a state that another Terraform operation is actively using.
-
----
-
- ## EKS nodes aren't joining
-
- Check:
-
-```
-kubectl get nodes
-```
-
- Verify the node group IAM role has the appropriate permissions, including:
-
-```
-AmazonEKSWorkerNodePolicy
-AmazonEKS_CNI_Policy
-AmazonEC2ContainerRegistryReadOnly
-```
-
- Also check the Terraform/GitHub Actions apply logs for errors during node group creation.
+| Principle                     | Implementation                 |
+| ----------------------------- | ------------------------------ |
+| **Infrastructure as Code**    | Terraform                      |
+| **Immutable Infrastructure**  | Terraform-managed resources    |
+| **Declarative Deployment**    | Kubernetes + GitOps            |
+| **Continuous Reconciliation** | ArgoCD                         |
+| **Containerization**          | Docker                         |
+| **Artifact Management**       | Amazon ECR                     |
+| **Identity-Based Security**   | IAM / OIDC                     |
+| **Secret Management**         | AWS Secrets Manager            |
+| **Network Isolation**         | Public / Private Subnets       |
+| **Managed Persistence**       | Amazon RDS                     |
+| **Automated Validation**      | GitHub Actions                 |
+| **Change Review**             | Pull Requests + Terraform Plan |
+| **Environment Isolation**     | Dev / QA / Prod                |
 
 ---
 
- ## Cannot connect to EKS
+# 🚀 Platform Lifecycle
 
- Refresh kubeconfig:
+The complete lifecycle looks like this:
 
-```
-aws eks update-kubeconfig \
-  --region us-east-1 \
-  --name pharma-dev-cluster
-```
-
- Verify your AWS identity:
-
-```
-aws sts get-caller-identity
-```
-
- Check cluster status:
-
-```
-aws eks describe-cluster \
-  --name pharma-dev-cluster \
-  --query 'cluster.status'
-```
-
- Expected:
-
-```
-"ACTIVE"
+```text
+                     ┌───────────────┐
+                     │   Developer   │
+                     └───────┬───────┘
+                             │
+                             ▼
+                          GitHub
+                             │
+             ┌───────────────┴───────────────┐
+             │                               │
+             ▼                               ▼
+       Application CI                  Infrastructure CI
+             │                               │
+             ▼                               ▼
+           Docker                         Terraform
+             │                               │
+             ▼                               ▼
+            ECR                        AWS Infrastructure
+             │                               │
+             ▼                               │
+           GitOps                            │
+             │                               │
+             ▼                               │
+           ArgoCD                            │
+             │                               │
+             └───────────────┬───────────────┘
+                             ▼
+                           EKS
+                             │
+               ┌─────────────┼─────────────┐
+               │             │             │
+               ▼             ▼             ▼
+            Services      Frontend       Ingress
+               │
+               ▼
+              RDS
 ```
 
 ---
 
- # 💰 Cost Estimate
+# 💡 The Big Picture
 
- Approximate dev environment costs:
+MedPharma is intentionally designed as more than a collection of cloud resources.
 
- | Resource | Approximate cost |
-| --- | --- |
-| EKS control plane | \~$0.10/hour |
-| 3 × `t3.small` | \~$43/month |
-| RDS `db.t3.micro` | \~$14/month |
-| NAT Gateway | \~$32/month + data transfer |
-| ECR | Minimal for small image storage |
-| Secrets Manager | \~$0.80/month for 2 secrets |
-| **Estimated total** | **\~$160–180/month** |
+It demonstrates a complete engineering workflow:
 
-AWS pricing varies by region, usage, data transfer, storage, and configuration. Treat these numbers as estimates rather than billing guarantees.
-
- ### 💡 Tip for learners
-
- If you're not actively using the environment:
-
+```text
+DESIGN
+  ↓
+TERRAFORM
+  ↓
+AWS
+  ↓
+EKS
+  ↓
+CONTAINERS
+  ↓
+ECR
+  ↓
+GITOPS
+  ↓
+ARGOCD
+  ↓
+APPLICATION
+  ↓
+OBSERVE / OPERATE
+  ↓
+ITERATE
 ```
-terraform destroy
-```
 
- EKS and NAT Gateway are among the larger ongoing costs in this architecture.
+The result is a **reproducible cloud platform architecture** where infrastructure, applications, deployment configuration, and operational workflows are managed as code.
 
 ---
 
- # 🎯 Interview Preparation
+## Core Technologies
 
- This project is designed to demonstrate practical experience with:
-
- - Terraform
-- Terraform modules
-- Terraform state
-- Remote S3 state
-- Infrastructure as Code
-- AWS VPC networking
-- Amazon EKS
-- Kubernetes
-- RDS PostgreSQL
-- Amazon ECR
-- IAM
-- IRSA
-- OIDC
-- AWS Secrets Manager
-- GitHub Actions
-- CI/CD
-- Infrastructure drift
-- Infrastructure lifecycle management
-
- Recommended interview topics include:
-
- ### Terraform
-
- - State management
-- Remote backends
-- Modules
-- Variables and outputs
-- Resource dependencies
-- `terraform plan`
-- `terraform apply`
-- `terraform destroy`
-- Drift detection
-- State locking
-- Importing existing resources
-- Workspaces vs separate environments
-
- ### AWS
-
- - VPC design
-- Public vs private subnets
-- NAT Gateway
-- Internet Gateway
-- Route tables
-- Security groups
-- EKS networking
-- IAM
-- OIDC
-- IRSA
-- RDS networking
-
- ### CI/CD
-
- - GitHub Actions
-- Pull-request plans
-- Deployment approvals
-- Secrets management
-- OIDC authentication
-- Infrastructure deployment workflows
+**AWS · Terraform · Kubernetes · Amazon EKS · Docker · Amazon ECR · Amazon RDS · PostgreSQL · IAM · OIDC · Secrets Manager · GitHub Actions · Helm · ArgoCD · NGINX**
 
 ---
 
- # 🗺️ Environment Strategy
+### Built by CloudTechs.ai
 
- The repository supports three isolated environments:
-
-```
-envs/
-├── dev/
-├── qa/
-└── prod/
-```
-
- Each environment:
-
- - Has its own Terraform configuration
-- Has its own remote state key
-- Uses the same reusable modules
-- Can have different resource sizing
-- Can have different security and availability settings
-
- Example:
-
-```
-                ┌───────────────┐
-                │ Shared Modules│
-                └───────┬───────┘
-                        │
-          ┌─────────────┼─────────────┐
-          │             │             │
-          ▼             ▼             ▼
-        DEV            QA           PROD
-          │             │             │
-       State          State         State
-       Object         Object        Object
-```
-
----
-
- # 📌 Design Principles
-
- This project follows several core infrastructure principles:
-
- 1. **Infrastructure as Code** — AWS infrastructure is defined in Terraform.
-2. **Reusable modules** — environments share common Terraform modules.
-3. **Remote state** — Terraform state is stored securely in S3.
-4. **Environment isolation** — dev, QA, and production use separate state.
-5. **Private workloads** — EKS nodes and RDS are deployed in private subnets.
-6. **Secrets outside Git** — sensitive values are stored in AWS Secrets Manager.
-7. **Least privilege** — IAM permissions should be scoped to required resources.
-8. **Automated validation** — Terraform plans run through GitHub Actions.
-9. **Human approval** — production infrastructure changes should require explicit approval.
-10. **Repeatability** — environments can be recreated from code.
-
----
-
- ## 📚 Project Documentation
-
- Additional documentation can be found in the `docs/` directory:
-
-```
-docs/
-├── terraform-interview-questions.md
-└── github-actions-interview-questions.md
-```
-
- The Terraform interview guide covers core Terraform concepts, state management, modules, CI/CD, and real-world scenarios based on this project.
-
----
-
- ## 🧰 Technology Stack
-
- | Technology | Purpose |
-| --- | --- |
-| Terraform 1.10+ | Infrastructure as Code |
-| AWS | Cloud platform |
-| Amazon VPC | Networking |
-| Amazon EKS | Kubernetes |
-| Kubernetes | Container orchestration |
-| Amazon RDS | PostgreSQL database |
-| Amazon ECR | Container registry |
-| AWS IAM | Identity and access management |
-| AWS Secrets Manager | Secrets management |
-| Amazon S3 | Terraform state |
-| GitHub Actions | CI/CD |
-| NGINX Ingress | Kubernetes ingress |
-
----
-
- ## 👤 Project
-
- **zen-pharma infrastructure**
-
- Built with:
-
- **Terraform · AWS · EKS · Kubernetes · RDS · ECR · IAM · Secrets Manager · GitHub Actions**
-
- > Infrastructure should be reproducible, reviewable, and disposable.
+**Cloud Engineering · Infrastructure as Code · Kubernetes · DevOps · Cloud Security**
