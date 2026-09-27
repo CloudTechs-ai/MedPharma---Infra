@@ -1,100 +1,62 @@
 # MedPharma
 
-## Cloud-Native Healthcare Platform | AWS · Terraform · EKS · Kubernetes · GitOps
+## Cloud-Native Pharmaceutical Platform
 
-[![AWS](https://img.shields.io/badge/AWS-Cloud-orange?logo=amazon-aws)](#)
-[![Terraform](https://img.shields.io/badge/Terraform-Infrastructure%20as%20Code-7B42BC?logo=terraform)](#)
-[![Kubernetes](https://img.shields.io/badge/Kubernetes-EKS-326CE5?logo=kubernetes)](#)
-[![Docker](https://img.shields.io/badge/Docker-Containers-2496ED?logo=docker)](#)
-[![ArgoCD](https://img.shields.io/badge/ArgoCD-GitOps-EF7B4D?logo=argo)](#)
-[![GitHub Actions](https://img.shields.io/badge/GitHub%20Actions-CI%2FCD-2088FF?logo=github)](#)
+**AWS · Terraform · Kubernetes · EKS · Docker · GitHub Actions · ArgoCD · Java · Spring Boot · React · PostgreSQL**
 
-> **MedPharma is a cloud-native pharmaceutical platform built to demonstrate modern AWS infrastructure, Infrastructure as Code, Kubernetes, containerization, CI/CD, GitOps, cloud security, and operational engineering.**
-
-This repository contains the **AWS infrastructure layer** of the MedPharma platform.
-
-The project was designed around a production-oriented architecture in which infrastructure, application delivery, Kubernetes configuration, and deployment workflows are managed as code.
+> A full-stack cloud engineering project demonstrating how to design, provision, secure, containerize, deploy, and operate a Kubernetes-based application platform on AWS using Infrastructure as Code and GitOps.
 
 ---
 
-# 🚀 Project Overview
+## 👋 What I Built
 
-MedPharma combines multiple engineering disciplines into a single cloud platform:
+**MedPharma** is a cloud-native pharmaceutical management platform I designed and engineered to demonstrate practical cloud infrastructure and DevOps skills.
 
-```text
-Source Code
-     │
-     ▼
-   GitHub
-     │
-     ├──────────────────────┐
-     │                      │
-     ▼                      ▼
-Application Repositories   Infrastructure
-     │                      │
-     ▼                      ▼
-GitHub Actions            Terraform
-     │                      │
-     ▼                      ▼
-Docker / ECR              AWS
-     │                      │
-     ▼                      ▼
-   GitOps                   EKS
-     │                      │
-     ▼                      │
-   ArgoCD                   │
-     │                      │
-     └──────────┬───────────┘
-                ▼
-           Application
-                │
-                ▼
-               RDS
-```
+Rather than building only an application, I built the surrounding **cloud platform required to run it**.
 
-### Core Platform Components
+The project brings together:
 
-* **AWS VPC** — network architecture and segmentation
-* **Amazon EKS** — Kubernetes runtime
-* **Amazon RDS PostgreSQL** — persistent application data
-* **Amazon ECR** — container image storage
-* **AWS IAM / OIDC** — identity and access management
-* **AWS Secrets Manager** — sensitive configuration
-* **Terraform** — Infrastructure as Code
-* **Docker** — containerization
-* **GitHub Actions** — CI/CD automation
-* **ArgoCD** — GitOps deployment
-* **Kubernetes / Helm** — workload management
-* **NGINX Ingress** — application ingress
-* **CloudWatch / Grafana** — observability
+* AWS cloud architecture
+* Terraform Infrastructure as Code
+* Kubernetes and Amazon EKS
+* Containerized microservices
+* PostgreSQL
+* GitHub Actions CI/CD
+* Amazon ECR
+* ArgoCD GitOps
+* IAM and OIDC authentication
+* Secrets management
+* Network segmentation
+* Application observability
+* Cost-aware infrastructure lifecycle management
+
+The result is an architecture where **infrastructure, application delivery, and Kubernetes configuration are all managed through code and version control.**
 
 ---
 
-# 📸 Application Screenshots
+# 🧠 Engineering Focus
 
-The following screenshots were captured from the completed MedPharma application during its development and validation phase.
+This project was intentionally built around the responsibilities of a modern **Cloud / DevOps / Platform Engineer**.
 
-The AWS environment used for validation was subsequently **decommissioned as a cost-control decision** rather than maintained as a continuously running portfolio environment.
+### Infrastructure
 
-The screenshots demonstrate the completed application experience, while the infrastructure and deployment repositories preserve the engineering implementation.
+**Terraform → AWS VPC → EKS → RDS → ECR → IAM**
 
-### Platform Dashboard
+### Application
 
-![MedPharma Dashboard](screenshots/dashboard.png)
+**React → Spring Boot → PostgreSQL**
 
-### Distribution
+### Delivery
 
-![Distribution](screenshots/distribution.png)
+**GitHub → GitHub Actions → Docker → ECR**
 
-### Inventory
+### Deployment
 
-![Inventory](screenshots/inventory.png)
+**GitOps → ArgoCD → Kubernetes → EKS**
 
-### Drug Catalog
+### Security
 
-![Drug Catalog](screenshots/drug-catalog.png)
-
-> **Deployment status:** The application was previously deployed and validated in AWS. The live AWS environment is not currently running because the demonstration infrastructure was decommissioned to eliminate ongoing cloud costs. The infrastructure remains defined through Terraform and can be recreated when required.
+**IAM → OIDC → Secrets Manager → Private Networking**
 
 ---
 
@@ -105,199 +67,98 @@ The screenshots demonstrate the completed application experience, while the infr
                                     │
                                     ▼
                            ┌─────────────────┐
-                           │ AWS Load        │
-                           │ Balancer        │
+                           │ Load Balancer   │
                            └────────┬────────┘
                                     │
                                     ▼
                            ┌─────────────────┐
                            │ NGINX Ingress   │
-                           │ Controller      │
                            └────────┬────────┘
                                     │
-                  ┌─────────────────┼──────────────────┐
-                  │                 │                  │
-                  ▼                 ▼                  ▼
-             ┌─────────┐      ┌───────────┐     ┌─────────────┐
-             │ React   │      │ API       │     │Notification │
-             │Frontend │      │ Gateway   │     │ Service     │
-             └─────────┘      └─────┬─────┘     └─────────────┘
-                                    │
-             ┌──────────────────────┼────────────────────────┐
-             │                      │                        │
-             ▼                      ▼                        ▼
-       ┌──────────┐          ┌─────────────┐          ┌────────────┐
-       │   Auth   │          │ Drug        │          │ Inventory  │
-       │ Service  │          │ Catalog     │          │ Service    │
-       └──────────┘          └─────────────┘          └────────────┘
-             │                      │                        │
-             └──────────────────────┼────────────────────────┘
-                                    │
-                                    ▼
-                          ┌─────────────────────┐
-                          │ Amazon RDS          │
-                          │ PostgreSQL          │
-                          │ Private Data Tier   │
-                          └─────────────────────┘
+                    ┌───────────────┼────────────────┐
+                    │               │                │
+                    ▼               ▼                ▼
+               React UI        API Gateway       Services
+                                                    │
+                         ┌──────────────────────────┼───────────────┐
+                         │                          │               │
+                         ▼                          ▼               ▼
+                    Auth Service              Drug Catalog      Inventory
+                         │                          │               │
+                         └──────────────────────────┼───────────────┘
+                                                    │
+                                                    ▼
+                                           PostgreSQL / RDS
 ```
+
+### AWS Infrastructure
+
+```text
+                         AWS VPC
+                    10.0.0.0/16
+                         │
+          ┌──────────────┼──────────────┐
+          │              │              │
+          ▼              ▼              ▼
+       PUBLIC          PRIVATE        PRIVATE
+       SUBNETS         EKS TIER       DATABASE TIER
+          │              │              │
+          │              ▼              ▼
+          │             EKS            RDS
+          │              │
+          │              ▼
+          │        Kubernetes
+          │        Workloads
+          │
+          ▼
+      Internet
+```
+
+The network is divided into separate public, application, and database tiers.
+
+```text
+Public
+├── 10.0.1.0/24
+└── 10.0.2.0/24
+
+Private EKS
+├── 10.0.3.0/24
+└── 10.0.4.0/24
+
+Private Database
+├── 10.0.5.0/24
+└── 10.0.6.0/24
+```
+
+This design demonstrates practical understanding of **AWS networking, subnetting, routing, security boundaries, and workload isolation.**
 
 ---
 
 # ☁️ AWS Infrastructure
 
-Terraform provisions the core AWS platform required by MedPharma.
+Terraform defines the infrastructure required to run the platform.
 
-## Networking
+### AWS Services
 
-* Amazon VPC
-* Public subnets
-* Private EKS subnets
-* Private database subnets
-* Internet Gateway
-* NAT Gateway
-* Route tables
-* Security groups
-* Network segmentation
+| Service             | Purpose                                     |
+| ------------------- | ------------------------------------------- |
+| **VPC**             | Network architecture and isolation          |
+| **EKS**             | Managed Kubernetes control plane            |
+| **RDS PostgreSQL**  | Relational application database             |
+| **ECR**             | Container image registry                    |
+| **IAM**             | Identity and authorization                  |
+| **Secrets Manager** | Sensitive configuration                     |
+| **S3**              | Terraform state / supporting infrastructure |
+| **Load Balancing**  | Application traffic ingress                 |
+| **CloudWatch**      | AWS monitoring and logging                  |
 
-### VPC CIDR
-
-```text
-10.0.0.0/16
-│
-├── Public Subnets
-│   ├── 10.0.1.0/24
-│   └── 10.0.2.0/24
-│
-├── Private EKS Subnets
-│   ├── 10.0.3.0/24
-│   └── 10.0.4.0/24
-│
-└── Private Database Subnets
-    ├── 10.0.5.0/24
-    └── 10.0.6.0/24
-```
-
-The network is separated into three primary tiers:
-
-```text
-Internet
-   │
-   ▼
-Public Tier
-   │
-   ▼
-Private EKS Tier
-   │
-   ▼
-Private Database Tier
-```
-
-This provides clear separation between externally accessible infrastructure, application workloads, and persistent data.
+The infrastructure is organized into reusable Terraform modules rather than being manually created through the AWS console.
 
 ---
 
-# ☸️ Amazon EKS
+# 🏗️ Infrastructure as Code
 
-Amazon EKS provides the Kubernetes runtime for the platform.
-
-The cluster is designed to support:
-
-* API Gateway
-* Authentication Service
-* Drug Catalog Service
-* Inventory Service
-* Supplier Service
-* Notification Service
-* React frontend
-
-Terraform manages the underlying AWS infrastructure while the GitOps repository manages Kubernetes deployment configuration.
-
-> **Terraform builds the platform. GitOps operates the workloads.**
-
----
-
-# 🗄️ Data Layer
-
-Amazon RDS PostgreSQL provides managed relational persistence.
-
-The database is designed to operate inside the private database tier and communicate with application workloads through controlled network paths and security groups.
-
-```text
-EKS Workloads
-      │
-      ▼
-Security Groups
-      │
-      ▼
-Private RDS
-      │
-      ▼
-PostgreSQL
-```
-
----
-
-# 🔐 Security Architecture
-
-Security is incorporated throughout the platform architecture.
-
-## GitHub Actions → AWS
-
-```text
-GitHub Actions
-      │
-      ▼
-GitHub OIDC
-      │
-      ▼
-AWS IAM Role
-      │
-      ▼
-Temporary Credentials
-      │
-      ▼
-AWS APIs
-```
-
-OIDC-based authentication allows supported CI/CD workflows to authenticate to AWS without storing long-lived AWS access keys in GitHub.
-
-## Kubernetes Workload Identity
-
-```text
-Kubernetes Pod
-      │
-      ▼
-Service Account
-      │
-      ▼
-OIDC
-      │
-      ▼
-AWS IAM Role
-      │
-      ▼
-AWS Service
-```
-
-## Secrets Management
-
-Sensitive configuration is designed to be stored in AWS Secrets Manager rather than committed directly to source control.
-
-```text
-AWS Secrets Manager
-        │
-        ▼
-Kubernetes Secret
-        │
-        ▼
-Application
-```
-
----
-
-# 🏗️ Terraform Architecture
-
-The infrastructure is organized into reusable Terraform modules.
+The infrastructure repository follows a modular Terraform architecture:
 
 ```text
 infra/
@@ -321,104 +182,174 @@ infra/
 └── README.md
 ```
 
-### Module Responsibilities
+### Terraform Modules
 
-| Module            | Responsibility                              |
-| ----------------- | ------------------------------------------- |
-| `vpc`             | VPC, subnets, routing, NAT, and networking  |
-| `eks`             | EKS cluster and managed node infrastructure |
-| `rds`             | PostgreSQL database infrastructure          |
-| `ecr`             | Container image repositories                |
-| `iam`             | AWS identities and workload permissions     |
-| `secrets-manager` | Application secret storage                  |
+**VPC**
 
-The modular architecture makes the infrastructure easier to reproduce, review, maintain, and extend.
+* VPC
+* Public/private subnets
+* Route tables
+* Internet Gateway
+* NAT Gateway
+* Security groups
 
----
+**EKS**
 
-# 🔄 CI/CD & GitOps
+* EKS cluster
+* Managed node infrastructure
+* Kubernetes networking integration
+* IAM integration
 
-Application delivery and infrastructure delivery are intentionally separated.
+**RDS**
 
-```text
-                         GitHub
-                            │
-             ┌──────────────┴──────────────┐
-             │                             │
-             ▼                             ▼
-     Application Repos               Infrastructure
-             │                             │
-             ▼                             ▼
-      GitHub Actions                 GitHub Actions
-             │                             │
-             ▼                             ▼
-          Docker                     Terraform Plan
-             │                             │
-             ▼                             ▼
-            ECR                           AWS
-             │
-             ▼
-           GitOps
-             │
-             ▼
-           ArgoCD
-             │
-             ▼
-            EKS
-```
+* PostgreSQL
+* Private database networking
+* Security groups
+* Database configuration
 
-## Infrastructure Workflow
+**ECR**
 
-```text
-Feature Branch
-      │
-      ▼
-Pull Request
-      │
-      ├── Terraform Format
-      ├── Terraform Validate
-      ├── Security Checks
-      └── Terraform Plan
-      │
-      ▼
-Code Review
-      │
-      ▼
-Merge
-      │
-      ▼
-Terraform Apply
-      │
-      ▼
-AWS
-```
+* Container repositories
+* Image storage
 
-This provides an auditable workflow where infrastructure changes can be reviewed before they are applied.
+**IAM**
+
+* Roles
+* Policies
+* OIDC integration
+* Workload permissions
+
+**Secrets Manager**
+
+* Application secrets
+* Secure configuration storage
 
 ---
 
-# 📦 Container Supply Chain
+# ☸️ Kubernetes & Amazon EKS
 
-Application containers follow a traceable delivery path:
+EKS provides the Kubernetes platform for the application.
+
+The platform separates application workloads into independently deployable services.
+
+Examples include:
+
+* API Gateway
+* Authentication
+* Drug Catalog
+* Inventory
+* Supplier
+* Notification
+* Frontend
+
+The deployment model follows:
 
 ```text
-Source Code
+Terraform
+    │
+    ▼
+AWS Infrastructure
+    │
+    ▼
+Amazon EKS
+    │
+    ▼
+Kubernetes
+    │
+    ▼
+Application Workloads
+```
+
+This demonstrates practical experience with the intersection of **AWS infrastructure and Kubernetes operations**.
+
+---
+
+# 🔐 Security Architecture
+
+Security was designed into the platform rather than treated as an afterthought.
+
+## GitHub Actions → AWS
+
+The CI/CD architecture uses OIDC-based authentication rather than relying on long-lived AWS access keys.
+
+```text
+GitHub Actions
+      │
+      ▼
+GitHub OIDC
+      │
+      ▼
+AWS IAM Role
+      │
+      ▼
+Temporary AWS Credentials
+      │
+      ▼
+AWS Resources
+```
+
+This reduces the need to store persistent cloud credentials in CI/CD systems.
+
+## Workload Identity
+
+Kubernetes workloads can use service-account-based identity to obtain AWS permissions through IAM/OIDC.
+
+```text
+Kubernetes Pod
+      │
+      ▼
+Service Account
+      │
+      ▼
+OIDC
+      │
+      ▼
+IAM Role
+      │
+      ▼
+AWS Service
+```
+
+## Secrets
+
+Sensitive application configuration is separated from source code and designed to use AWS Secrets Manager.
+
+```text
+AWS Secrets Manager
+        │
+        ▼
+Kubernetes / Application
+        │
+        ▼
+Runtime Configuration
+```
+
+---
+
+# 🔄 CI/CD Pipeline
+
+The project separates infrastructure delivery from application delivery.
+
+## Application Pipeline
+
+```text
+Developer
+    │
+    ▼
+GitHub
     │
     ▼
 GitHub Actions
     │
+    ├── Build
     ├── Test
-    ├── Validate
-    └── Build
-    │
-    ▼
-Docker Image
+    └── Docker Build
     │
     ▼
 Amazon ECR
     │
     ▼
-GitOps
+GitOps Repository
     │
     ▼
 ArgoCD
@@ -427,62 +358,161 @@ ArgoCD
 Amazon EKS
 ```
 
-Container versions can be tied to source-control revisions rather than relying exclusively on mutable tags such as `latest`.
+## Infrastructure Pipeline
+
+```text
+Terraform Code
+      │
+      ▼
+GitHub Actions
+      │
+      ├── terraform fmt
+      ├── terraform validate
+      ├── security checks
+      └── terraform plan
+      │
+      ▼
+Review
+      │
+      ▼
+Terraform Apply
+      │
+      ▼
+AWS
+```
+
+This provides a repeatable workflow for infrastructure changes rather than relying on manual configuration.
+
+---
+
+# 🚀 GitOps with ArgoCD
+
+Kubernetes desired state is maintained in Git.
+
+```text
+Git Repository
+      │
+      ▼
+Desired Kubernetes State
+      │
+      ▼
+ArgoCD
+      │
+      ▼
+EKS
+      │
+      ▼
+Running Workloads
+```
+
+ArgoCD continuously reconciles the Kubernetes environment against the configuration stored in Git.
+
+This creates a clear separation:
+
+> **Terraform manages cloud infrastructure.
+> GitOps manages Kubernetes application state.**
+
+---
+
+# 🐳 Containerization
+
+Application services are packaged as Docker containers.
+
+```text
+Source Code
+    │
+    ▼
+Docker Build
+    │
+    ▼
+Container Image
+    │
+    ▼
+Amazon ECR
+    │
+    ▼
+ArgoCD / Kubernetes
+    │
+    ▼
+EKS
+```
+
+This creates a consistent application delivery path from source code to Kubernetes.
 
 ---
 
 # 📊 Observability
 
-The platform incorporates operational visibility through AWS and Kubernetes tooling.
+The platform incorporates operational visibility across the infrastructure and application layers.
 
-Examples include:
+Technologies and capabilities include:
 
-* Amazon CloudWatch
+* CloudWatch
 * Kubernetes workload status
-* Application health checks
 * Container logs
-* Grafana dashboards
+* Application health checks
+* Grafana
 * Infrastructure metrics
 
-The goal is to make deployed systems observable throughout their lifecycle.
+The objective is to make failures and system behavior observable rather than relying exclusively on manual investigation.
 
 ---
 
-# 💰 Cost-Aware Cloud Engineering
+# 💰 Cost-Aware Engineering
 
-Cloud infrastructure has an ongoing operating cost, particularly when combining:
+One of the practical lessons of building on AWS is that production-style infrastructure can generate recurring costs.
 
-* EKS
-* EC2 worker nodes
-* NAT Gateway
-* RDS
-* Load Balancers
-* ECR
-* Observability services
+MedPharma was deployed to AWS during development and used to validate the architecture and application.
 
-For a portfolio project, maintaining production-style infrastructure continuously after validation provides limited additional value while continuing to generate recurring costs.
+After validation, the demonstration environment was **decommissioned to eliminate unnecessary recurring cloud infrastructure costs**.
 
-The demonstration environment was therefore **decommissioned after validation**.
+The infrastructure itself remains defined through Terraform and can be recreated when needed.
 
-This keeps the infrastructure reproducible without maintaining unnecessary cloud spend.
+This demonstrates an important operational principle:
 
-```text
-Terraform
-    │
-    ▼
-Infrastructure Definition
-    │
-    ▼
-Reproducible AWS Environment
-```
+> **Cloud infrastructure should have a lifecycle — provision it when needed, validate it, and decommission it when it no longer provides sufficient value.**
 
-This is an intentional part of the project's lifecycle rather than a limitation of the architecture.
+---
+
+# 📸 Application Screenshots
+
+The following screenshots show the completed application during development and validation.
+
+### Login
+
+![MedPharma Login](screenshots/MedPharma-Login.png)
+
+### Dashboard
+
+![MedPharma Dashboard](<screenshots/MedPharma Dashboard .png>)
+
+### Drug Catalog
+
+![Drug Catalog](<screenshots/MedPharama - Drug Catalog.png>)
+
+### Distribution
+
+![Distribution](<screenshots/MedPharma - Distribution.png>)
+
+### Inventory
+
+![Inventory](<screenshots/MedPharma - Inventory.png>)
+
+### Quality Control
+
+![Quality Control](<screenshots/MedPharma - Quality Control.png>)
+
+### Reports
+
+![Reports](<screenshots/MedPharma - Reports.png>)
+
+> **Deployment status:** The application was deployed and validated during development. The AWS demonstration environment is no longer running because it was intentionally decommissioned to eliminate ongoing portfolio infrastructure costs.
 
 ---
 
 # 🧪 Infrastructure Validation
 
-Terraform provides the primary infrastructure validation workflow.
+The infrastructure can be validated with standard Terraform workflows:
 
 ```bash
 terraform fmt -check
@@ -490,132 +520,41 @@ terraform validate
 terraform plan
 ```
 
-Infrastructure state and individual resources can also be inspected using:
+Terraform state can be inspected with:
 
 ```bash
 terraform state list
 terraform state show <resource>
 ```
 
-The platform is designed around declarative infrastructure rather than manual AWS console configuration.
+The project is designed around **declarative infrastructure and reproducibility** rather than manual AWS configuration.
 
 ---
 
-# 📁 Repository Ecosystem
+# 📁 Repository Architecture
 
-MedPharma is divided into multiple repositories so infrastructure, application code, and deployment configuration remain independently maintainable.
+MedPharma is separated into independent repositories.
 
-| Repository              | Responsibility                             |
-| ----------------------- | ------------------------------------------ |
-| **med-infra**           | AWS infrastructure and Terraform           |
-| **med-pharma-backend**  | Java / Spring Boot microservices           |
-| **med-pharma-frontend** | React frontend                             |
-| **gitops**              | Kubernetes, Helm, and ArgoCD configuration |
+| Repository   | Purpose                                    |
+| ------------ | ------------------------------------------ |
+| **infra**    | AWS infrastructure and Terraform           |
+| **backend**  | Java / Spring Boot services                |
+| **frontend** | React application                          |
+| **gitops**   | Kubernetes, Helm, and ArgoCD configuration |
 
-This separation mirrors a modern cloud engineering workflow in which infrastructure and application responsibilities are managed independently.
-
----
-
-# 🎯 Engineering Skills Demonstrated
-
-## Cloud Architecture
-
-* AWS VPC architecture
-* Public/private subnet design
-* Amazon EKS
-* Amazon RDS
-* Amazon ECR
-* Load balancing
-* Cloud networking
-
-## Infrastructure as Code
-
-* Terraform
-* Reusable modules
-* Remote state
-* Environment configuration
-* Infrastructure lifecycle management
-
-## Kubernetes
-
-* Amazon EKS
-* Kubernetes workloads
-* Ingress
-* Service accounts
-* Helm
-* GitOps
-
-## DevOps
-
-* GitHub Actions
-* CI/CD
-* Docker
-* Amazon ECR
-* Automated Terraform validation
-* Deployment workflows
-
-## Cloud Security
-
-* IAM
-* OIDC
-* Workload identity
-* Secrets Manager
-* Network segmentation
-* Least-privilege architecture
-
-## Operations
-
-* CloudWatch
-* Grafana
-* Logging
-* Health checks
-* Infrastructure drift detection
-* Cost-aware infrastructure lifecycle management
+This separation reflects a real-world engineering model where application code, infrastructure, and deployment configuration have independent lifecycles.
 
 ---
 
-# 🔗 MedPharma Platform
-
-The infrastructure repository is one component of the larger MedPharma platform.
-
-```text
-                         MEDPHARMA
-                             │
-          ┌──────────────────┼──────────────────┐
-          │                  │                  │
-          ▼                  ▼                  ▼
-      med-infra           backend           frontend
-          │                  │                  │
-          ▼                  ▼                  │
-       Terraform           Docker              │
-          │                  │                  │
-          ▼                  ▼                  │
-        AWS/EKS             ECR ◄──────────────┘
-          │                  │
-          │                  ▼
-          │                GitOps
-          │                  │
-          │                  ▼
-          └───────────────► ArgoCD
-                             │
-                             ▼
-                            EKS
-                             │
-                             ▼
-                            RDS
-```
-
----
-
-# 🛠️ Technology Stack
+# 🧰 Technology Stack
 
 ### Cloud
 
-**AWS · VPC · EKS · RDS · ECR · IAM · S3 · Secrets Manager**
+**AWS · VPC · EKS · RDS · ECR · IAM · S3 · Secrets Manager · CloudWatch**
 
 ### Infrastructure
 
-**Terraform · Terraform Modules · Remote State**
+**Terraform · Terraform Modules · Infrastructure as Code**
 
 ### Containers
 
@@ -623,7 +562,7 @@ The infrastructure repository is one component of the larger MedPharma platform.
 
 ### Kubernetes
 
-**Kubernetes · EKS · Helm · NGINX Ingress**
+**Kubernetes · Amazon EKS · Helm · NGINX Ingress**
 
 ### CI/CD
 
@@ -631,70 +570,198 @@ The infrastructure repository is one component of the larger MedPharma platform.
 
 ### GitOps
 
-**ArgoCD · Git-based Desired State**
+**ArgoCD**
 
-### Application
+### Backend
 
-**Java 17 · Spring Boot · PostgreSQL · React**
+**Java 17 · Spring Boot · Microservices**
+
+### Frontend
+
+**React**
+
+### Database
+
+**PostgreSQL**
 
 ---
 
-# 💡 Project Objective
+# 🎯 What This Project Demonstrates
 
-MedPharma was built to demonstrate how a cloud engineer can combine individual technologies into a cohesive cloud platform.
+This project demonstrates practical experience across the following engineering areas:
 
-The project brings together:
+### ☁️ Cloud Engineering
 
-```text
-Cloud Architecture
-        ↓
-Infrastructure as Code
-        ↓
-Network Segmentation
-        ↓
-Identity & Security
-        ↓
-Containers
-        ↓
-Kubernetes
-        ↓
-CI/CD
-        ↓
-GitOps
-        ↓
-Observability
-        ↓
-Cost Management
-```
+* AWS architecture
+* VPC design
+* Subnetting
+* Routing
+* Security groups
+* EKS
+* RDS
+* ECR
+* Load balancing
 
-The result is a **reproducible cloud-native platform architecture** where infrastructure, application delivery, deployment configuration, and operational workflows are managed as code.
+### 🏗️ Infrastructure Engineering
+
+* Terraform
+* Reusable modules
+* Infrastructure lifecycle management
+* Declarative configuration
+* Environment separation
+* Terraform validation
+
+### ☸️ Kubernetes
+
+* EKS
+* Kubernetes workloads
+* Services
+* Ingress
+* Helm
+* Service accounts
+* GitOps
+
+### 🔄 DevOps
+
+* GitHub Actions
+* CI/CD
+* Docker
+* ECR
+* Automated validation
+* Deployment automation
+
+### 🔐 Cloud Security
+
+* IAM
+* OIDC
+* Workload identity
+* Secrets management
+* Private networking
+* Security boundaries
+
+### 📈 Operations
+
+* Logging
+* Monitoring
+* Health checks
+* Infrastructure observability
+* Cost management
+* Reproducible deployments
+
+---
+
+# 🧑‍💻 Engineering Decisions
+
+Several design decisions were intentional:
+
+### Infrastructure as Code
+
+AWS infrastructure is defined through Terraform instead of being dependent on manual console configuration.
+
+### Modular Terraform
+
+Infrastructure is broken into reusable modules so individual platform components can be maintained independently.
+
+### Private Data Tier
+
+The database is isolated from the public network and accessed through controlled application paths.
+
+### OIDC-Based CI/CD
+
+CI/CD authentication avoids depending on long-lived AWS credentials.
+
+### GitOps
+
+Kubernetes desired state is maintained in Git and reconciled through ArgoCD.
+
+### Containerized Services
+
+Application components are packaged as portable containers and delivered through ECR and Kubernetes.
+
+### Cost Control
+
+The AWS demonstration environment was decommissioned after validation rather than generating unnecessary ongoing infrastructure costs.
 
 ---
 
 # 📌 Project Status
 
-**Development and validation completed.**
+**Application development and AWS infrastructure validation completed.**
 
-The MedPharma application and supporting AWS infrastructure were developed and validated during the project lifecycle.
+The AWS demonstration environment is currently **decommissioned**.
 
-The AWS demonstration environment was subsequently decommissioned to eliminate recurring infrastructure costs.
+The repositories preserve:
 
-The current repository contains the infrastructure implementation and documentation required to understand and reproduce the platform.
+* Terraform infrastructure
+* Kubernetes configuration
+* GitOps configuration
+* Backend source code
+* Frontend source code
+* CI/CD workflows
+* Application screenshots
+* Architecture documentation
 
-Application screenshots are included in:
+The platform can therefore be reviewed as a complete engineering project even though the demonstration AWS environment is not continuously running.
+
+---
+
+# 🔗 Project Structure
 
 ```text
-screenshots/
+MedPharma
+│
+├── infra
+│   ├── Terraform
+│   ├── AWS architecture
+│   ├── CI/CD
+│   └── screenshots
+│
+├── backend
+│   ├── Java 17
+│   ├── Spring Boot
+│   └── Microservices
+│
+├── frontend
+│   └── React
+│
+└── gitops
+    ├── Kubernetes
+    ├── Helm
+    └── ArgoCD
 ```
 
 ---
 
-## Core Technologies
+# 🚀 Why I Built MedPharma
 
-**AWS · Terraform · Kubernetes · Amazon EKS · Docker · Amazon ECR · Amazon RDS · PostgreSQL · IAM · OIDC · Secrets Manager · GitHub Actions · Helm · ArgoCD · NGINX · Java 17 · Spring Boot · React**
+The goal was to move beyond isolated tutorials and demonstrate how the individual pieces of cloud engineering fit together into an actual platform.
+
+```text
+AWS
+ ↓
+Networking
+ ↓
+Terraform
+ ↓
+Security
+ ↓
+Containers
+ ↓
+Kubernetes
+ ↓
+CI/CD
+ ↓
+GitOps
+ ↓
+Observability
+ ↓
+Application
+```
+
+MedPharma represents a hands-on demonstration of **cloud infrastructure, automation, Kubernetes, DevOps, security, and application delivery working together as one system.**
 
 ---
 
-### Built by CloudTechs.ai
+## Built by CloudTechs.ai
 
 **Cloud Engineering · Infrastructure as Code · Kubernetes · DevOps · Cloud Security**
