@@ -2,7 +2,7 @@
 
 ## Cloud-Native Pharmaceutical Platform
 
-**AWS · Terraform · Kubernetes · EKS · Docker · GitHub Actions · ArgoCD · Java · Spring Boot · React · PostgreSQL**
+[![AWS](https://img.shields.io/badge/AWS-Cloud-orange?logo=amazon-aws)](#) [![Terraform](https://img.shields.io/badge/Terraform-Infrastructure%20as%20Code-7B42BC?logo=terraform)](#) [![Kubernetes](https://img.shields.io/badge/Kubernetes-EKS-326CE5?logo=kubernetes)](#) [![Docker](https://img.shields.io/badge/Docker-Containers-2496ED?logo=docker)](#) [![ArgoCD](https://img.shields.io/badge/ArgoCD-GitOps-EF7B4D?logo=argo)](#) [![GitHub Actions](https://img.shields.io/badge/GitHub%20Actions-CI%2FCD-2088FF?logo=github)](#)
 
 > A full-stack cloud engineering project demonstrating how to design, provision, secure, containerize, deploy, and operate a Kubernetes-based application platform on AWS using Infrastructure as Code and GitOps.
 
